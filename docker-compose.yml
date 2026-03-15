@@ -2,51 +2,32 @@ services:
   api:
     build: .
     container_name: sleep_api
+    restart: unless-stopped
     command: uvicorn app.api.main:app --host 0.0.0.0 --port 8000
     ports:
       - "8000:8000"
     volumes:
       - ./logs:/app/logs
       - ./artifacts:/app/artifacts:ro
-      - ./mlflow_data:/app/mlflow_data
-      - ./mlartifacts:/app/mlartifacts
     environment:
       ARTIFACTS_DIR: /app/artifacts/apnea_experiment_mlflow
       LOG_PATH: /app/logs/inference_log.csv
-      MODEL_SOURCE: local
-      MLFLOW_TRACKING_URI: http://mlflow:5000
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')"]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 15s
-    depends_on:
-      - mlflow
 
   frontend:
     build: .
     container_name: sleep_frontend
+    restart: unless-stopped
     command: streamlit run app/frontend/streamlit_app.py --server.address 0.0.0.0 --server.port 8501
     ports:
       - "8501:8501"
     environment:
-      API_URL: http://api:8000/analyze
+      API_URL: http://YOUR_IP_HERE:8000/analyze
     depends_on:
       api:
         condition: service_healthy
-
-  mlflow:
-    build: .
-    container_name: sleep_mlflow
-    command: >
-      mlflow server
-      --host 0.0.0.0
-      --port 5000
-      --backend-store-uri sqlite:////app/mlflow_data/mlflow.db
-      --artifacts-destination /app/mlartifacts
-    ports:
-      - "5001:5000"
-    volumes:
-      - ./mlflow_data:/app/mlflow_data
-      - ./mlartifacts:/app/mlartifacts

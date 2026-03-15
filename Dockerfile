@@ -10,10 +10,9 @@ RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r /app/requirements.txt
 
 COPY app /app/app
-COPY artifacts /app/artifacts
 COPY scripts /app/scripts
 
-RUN mkdir -p /app/logs /app/mlflow_data /app/mlartifacts
+RUN mkdir -p /app/logs /app/mlartifacts
 
 EXPOSE 8000
 EXPOSE 8501
