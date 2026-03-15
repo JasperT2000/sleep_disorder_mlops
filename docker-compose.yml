@@ -27,7 +27,7 @@ services:
     ports:
       - "8501:8501"
     environment:
-      API_URL: http://YOUR_IP_HERE:8000/analyze
+      API_URL: http://16.176.49.97:8000/analyze
     depends_on:
       api:
         condition: service_healthy
